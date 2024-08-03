@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html ng-app="UserApp">
+  <head>
+    <title>User Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  </head>
+  <body ng-controller="UserController">
+    <h1>User Information Form</h1>
+
+    <!-- User Input Form -->
+    <form ng-submit="submitForm()">
+      <!-- Name Input -->
+      <label>Name:</label>
+      <input type="text" ng-model="user.name" required /><br /><br />
+
+      <!-- Age Input -->
+      <label>Age:</label>
+      <input type="number" ng-model="user.age" required /><br /><br />
+
+      <!-- Gender Selection -->
+      <label>Gender:</label>
+      <select ng-model="user.gender" required>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option></select
+      ><br /><br />
+
+      <!-- Submit Button -->
+      <button type="submit">Submit</button>
+    </form>
+
+    <!-- Displaying the List of Users -->
+    <h2>Users List</h2>
+    <ul>
+        <li ng-repeat="user in users">
+            <span ng-bind="user.name"></span> - 
+            <span ng-bind="user.age"></span> - 
+            <span ng-bind="user.gender"></span>
+        </li>
+    </ul>
+    
+
+    <!-- AngularJS Script -->
+    <script>
+      // Define an AngularJS module named 'UserApp'
+      var app = angular.module("UserApp", []);
+
+      // Define a controller named 'UserController' within 'UserApp'
+      app.controller("UserController", function ($scope, $http) {
+        // Initialize an empty user object
+        $scope.user = {};
+        // Initialize an empty array to store users
+        $scope.users = [];
+
+        // Function to submit the form and save the user data
+        $scope.submitForm = function () {
+          // Send a POST request to the Django API to save user data
+          $http
+            .post("http://127.0.0.1:8000/api/users/", $scope.user)
+            .then(function (response) {
+              // Add the saved user to the users array for display
+              $scope.users.push(response.data);
+              // Reset the form fields
+              $scope.user = {};
+            });
+        };
+
+        // Function to load the existing users when the page loads
+        $http
+          .get("http://127.0.0.1:8000/api/users/")
+          .then(function (response) {
+            console.log(response.data); // Add this line to inspect the data
+            $scope.users = response.data;
+          })
+          .catch(function (error) {
+            console.error("Error fetching users:", error);
+          });
+      });
+    </script>
+  </body>
+</html>
